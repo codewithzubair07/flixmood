@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FlixMood - Savage Movie Recommendations</title>
+    <style>
+        :root {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --accent-color: #ff4d00;
+            --secondary-color: #9333ea;
+            --card-bg: #1e1e1e;
+            --input-bg: #2a2a2a;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+        
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 500px;
+            margin: 0 auto;
+        }
+        
+        .header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            position: relative;
+        }
+        
+        .logo-area {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .logo {
+            width: 40px;
+            height: 40px;
+            position: relative;
+        }
+        
+        .credits {
+            font-size: 12px;
+            color: #888;
+            position: absolute;
+            right: 0;
+            bottom: -15px;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            background: linear-gradient(to right, var(--accent-color), var(--secondary-color));
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            margin-bottom: 30px;
+            color: #aaaaaa;
+        }
+        
+        .chat-container {
+            display: flex;
+            flex-direction: column;
+            height: 400px;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            overflow: hidden;
+            margin-bottom: 16px;
+            position: relative;
+        }
+        
+        .chat-header {
+            background: linear-gradient(to right, var(--accent-color), var(--secondary-color));
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .chat-header-title {
+            font-weight: 600;
+        }
+        
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            background-color: #4ade80;
+            border-radius: 50%;
+        }
+        
+        .messages {
+            flex-grow: 1;
+            padding: 16px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        
+        .message {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 16px;
+            animation: fadeIn 0.3s ease;
+            position: relative;
+            line-height: 1.4;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .bot-message {
+            background-color: #3b3b3b;
+            align-self: flex-start;
+            border-top-left-radius: 4px;
+        }
+        
+        .user-message {
+            background-color: var(--accent-color);
+            align-self: flex-end;
+            border-top-right-radius: 4px;
+        }
+        
+        .movie-list {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .movie-item {
+            background-color: rgba(255, 255, 255, 0.1);
+            padding: 10px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .movie-item:hover {
+            transform: translateX(5px);
+            background-color: rgba(255, 255, 255, 0.15);
+        }
+        
+        .movie-title {
+            font-weight: 600;
+        }
+        
+        .movie-year {
+            color: #aaa;
+            font-size: 14px;
+        }
+        
+        .input-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .mood-input {
+            flex-grow: 1;
+            padding: 14px 16px;
+            border-radius: 10px;
+            border: none;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            font-size: 16px;
+            outline: none;
+            transition: box-shadow 0.3s;
+        }
+        
+        .mood-input:focus {
+            box-shadow: 0 0 0 2px var(--accent-color);
+        }
+        
+        .send-btn {
+            padding: 0 20px;
+            border: none;
+            background-color: var(--accent-color);
+            color: white;
+            font-weight: 600;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .send-btn:hover {
+            background-color: #ff6a2c;
+        }
+        
+        .mood-suggestions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        
+        .mood-tag {
+            padding: 8px 12px;
+            background-color: var(--input-bg);
+            border-radius: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        
+        .mood-tag:hover {
+            background-color: #3a3a3a;
+        }
+        
+        .meme-container {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            width: 100px;
+            height: 100px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10;
+            transition: opacity 0.3s;
+        }
+        
+        .meme-container.show {
+            opacity: 1;
+            animation: bounce 1s ease infinite;
+        }
+        
+        .meme-img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+        
+        .typing-indicator {
+            display: none;
+            align-self: flex-start;
+            background-color: #3b3b3b;
+            padding: 12px 16px;
+            border-radius: 16px;
+            border-top-left-radius: 4px;
+            margin-top: 10px;
+        }
+        
+        .typing-indicator span {
+            height: 8px;
+            width: 8px;
+            float: left;
+            margin: 0 1px;
+            background-color: #9E9EA1;
+            display: block;
+            border-radius: 50%;
+            opacity: 0.4;
+        }
+        
+        .typing-indicator span:nth-of-type(1) {
+            animation: typing 1s infinite;
+        }
+        
+        .typing-indicator span:nth-of-type(2) {
+            animation: typing 1s 0.33s infinite;
+        }
+        
+        .typing-indicator span:nth-of-type(3) {
+            animation: typing 1s 0.66s infinite;
+        }
+        
+        @keyframes typing {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-5px); }
+            100% { transform: translateY(0px); }
+        }
+        
+        .under25-logo {
+            width: 30px;
+            height: 30px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo-area">
+                <svg class="under25-logo" viewBox="0 0 250 250" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M125 0L164.645 85.3553L250 125L164.645 164.645L125 250L85.3553 164.645L0 125L85.3553 85.3553L125 0Z" fill="white"/>
+                    <text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="50" font-weight="bold" fill="black">U25</text>
+                </svg>
+                <h1>FlixMood</h1>
+            </div>
+            <div class="credits">by zubair07</div>
+        </div>
+        <p class="subtitle">Tell me your mood & I'll serve the tea with movies you actually deserve ✨</p>
+        
+        <div class="chat-container">
+            <div class="chat-header">
+                <div class="chat-header-title">Your Savage Movie Bestie</div>
+                <div class="status">
+                    <div class="status-dot"></div>
+                    <span>online</span>
+                </div>
+            </div>
+            
+            <div class="messages" id="messages">
+                <div class="message bot-message">
+                    Hey champ! I'm your movie therapist with zero chill. Tell me how you're feeling and I'll hook you up with the perfect flicks. No cap.
+                </div>
+            </div>
+            
+            <div class="typing-indicator" id="typing-indicator">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+            
+            <div class="meme-container" id="meme-container">
+                <img src="" alt="Meme" class="meme-img" id="meme-img">
+            </div>
+        </div>
+        
+        <div class="mood-suggestions">
+            <div class="mood-tag" data-mood="sad">sad 😢</div>
+            <div class="mood-tag" data-mood="happy">happy 😊</div>
+            <div class="mood-tag" data-mood="bored">bored 😑</div>
+            <div class="mood-tag" data-mood="heartbroken">heartbroken 💔</div>
+            <div class="mood-tag" data-mood="anxious">anxious 😰</div>
+            <div class="mood-tag" data-mood="motivated">motivated 💪</div>
+        </div>
+        
+        <div class="input-container">
+            <input type="text" class="mood-input" id="mood-input" placeholder="Tell me your mood...">
+            <button class="send-btn" id="send-btn">Send</button>
+        </div>
+    </div>
+    
+    <script>
+        // Movie database with recommendations for different moods
+        const movieDatabase = {
+            sad: [
+                { title: "The Perks of Being a Wallflower", year: "2012", description: "Perfect for when you want to cry but make it aesthetic." },
+                { title: "Eternal Sunshine of the Spotless Mind", year: "2004", description: "When you wanna feel existential AND heartbroken." },
+                { title: "Your Name", year: "2016", description: "Anime that hits different when you're in your feels." }
+            ],
+            happy: [
+                { title: "Barbie", year: "2023", description: "It's literally Barbie. Instant serotonin." },
+                { title: "Everything Everywhere All at Once", year: "2022", description: "Brain go brrr in the best way possible." },
+                { title: "Ferris Bueller's Day Off", year: "1986", description: "Old but still a whole vibe." }
+            ],
+            bored: [
+                { title: "Knives Out", year: "2019", description: "Murder mystery that doesn't make you yawn? Revolutionary." },
+                { title: "The Social Network", year: "2010", description: "Facebook drama before it was all boomers sharing minion memes." },
+                { title: "Baby Driver", year: "2017", description: "Cars go vroom, music goes hard." }
+            ],
+            heartbroken: [
+                { title: "500 Days of Summer", year: "2009", description: "Trauma wrapped in indie music and quirky camera angles." },
+                { title: "Marriage Story", year: "2019", description: "Watch people fight and feel better about your own breakup." },
+                { title: "Call Me By Your Name", year: "2017", description: "The soundtrack alone will have you in tears." }
+            ],
+            anxious: [
+                { title: "Soul", year: "2020", description: "Will make you question everything but in a chill Pixar way." },
+                { title: "The Secret Life of Walter Mitty", year: "2013", description: "Visual ASMR for your anxious brain." },
+                { title: "Inside Out", year: "2015", description: "Your emotions but make them cute little people." }
+            ],
+            motivated: [
+                { title: "The Wolf of Wall Street", year: "2013", description: "Toxic productivity but make it entertaining." },
+                { title: "Whiplash", year: "2014", description: "Not exactly healthy motivation but you'll want to practice... something." },
+                { title: "The Pursuit of Happyness", year: "2006", description: "Will Smith before the slap, being inspirational af." }
+            ]
+        };
+        
+        // Sassy Gen Z responses
+        const sassyResponses = {
+            sad: [
+                "Feeling sad? Time to emotionally self-destruct with these cinematic tear-jerkers. Grab the tissues bestie.",
+                "Main character energy + sad vibes = these movies. Go cry in HD.",
+                "Sadness loading... Here's your depression session, served hot."
+            ],
+            happy: [
+                "Happy? Weird flex but ok. Here are some bangers to match your annoying positive energy.",
+                "Vibing high? Let's keep that dopamine flowing with these absolute slay movies.",
+                "Happy mood? Couldn't be me, but here's what to watch while it lasts."
+            ],
+            bored: [
+                "Bored? Literally same. These will make your braincells do something for once.",
+                "POV: You're bored af and doom-scrolling. Try these instead, I guess.",
+                "Bored? Revolutionary concept: Watch something good instead of TikTok for 5 hours."
+            ],
+            heartbroken: [
+                "Heartbroken? Let's trauma bond with these movies that'll have you crying in the club.",
+                "Someone broke your heart? These movies will remind you why being single is actually the move.",
+                "Heartbreak? Say less. Time to romanticize your pain with these elite picks."
+            ],
+            anxious: [
+                "Anxious vibes? Same bestie. These will distract your overthinking brain for a few hours.",
+                "Brain going brrr with anxiety? Watch these and dissociate in a productive way.",
+                "Anxiety check! These movies are basically therapy but cheaper."
+            ],
+            motivated: [
+                "Feeling motivated? Weird, but let's fuel that main character energy before it dies.",
+                "Motivated? That'll last about 5 minutes but here's what to watch in that time.",
+                "Motivation unlocked. These will make you want to girl boss a little too hard."
+            ]
+        };
+        
+        // Memes database - Updated with mood-related memes
+        const memes = {
+            sad: [
+                "https://i.imgur.com/KjtbVOM.gif", // Crying cat
+                "https://i.imgur.com/GwNedhw.gif", // Crying in rain
+                "https://i.imgur.com/uc1UBrH.jpg", // Sad cat
+                "https://i.imgur.com/PppdzrD.png", // "I'm fine" meme
+                "https://i.imgur.com/HLA5GOj.jpg"  // Sad Pablo Escobar
+            ],
+            happy: [
+                "https://i.imgur.com/4ZKSU1C.gif", // Dancing cat
+                "https://i.imgur.com/lMssLxp.gif", // Happy dance
+                "https://i.imgur.com/t8JyOFc.jpg", // Success kid
+                "https://i.imgur.com/vQD0LFp.gif", // Happy dance
+                "https://i.imgur.com/XFNsaddl.jpg"  // Leonardo DiCaprio cheers
+            ],
+            bored: [
+                "https://i.imgur.com/dmoCiUR.gif", // Bored office worker
+                "https://i.imgur.com/g9nv1TS.jpg", // Bored SpongeBob
+                "https://i.imgur.com/x29elI9.gif", // Cat on keyboard
+                "https://i.imgur.com/fVH6TrT.jpg", // "Me at work" bored
+                "https://i.imgur.com/jv3qb3J.jpg"  // Bored kid
+            ],
+            heartbroken: [
+                "https://i.imgur.com/6v9lt8g.gif", // Heart breaking
+                "https://i.imgur.com/pUyPGFr.jpg", // "This is fine" dog
+                "https://i.imgur.com/lXSWGjR.jpg", // Heartbreak meme
+                "https://i.imgur.com/SJSfiWI.gif", // Crying in bed
+                "https://i.imgur.com/gzWdmlU.jpg"  // "Pain" meme
+            ],
+            anxious: [
+                "https://i.imgur.com/mPCyTAo.gif", // Sweating nervous
+                "https://i.imgur.com/QJfZrNB.jpg", // "This is fine" dog on fire
+                "https://i.imgur.com/5rcvy5t.jpg", // Anxiety cat
+                "https://i.imgur.com/XJZY0cT.gif", // Nervous sweating
+                "https://i.imgur.com/2ggZhXC.jpg"  // Overthinking meme
+            ],
+            motivated: [
+                "https://i.imgur.com/jxREIR3.gif", // "Just do it" Shia LaBeouf
+                "https://i.imgur.com/Y9iNwDa.jpg", // Motivated cat
+                "https://i.imgur.com/uyKgrYk.gif", // Rocky training
+                "https://i.imgur.com/nJ9Y4Qo.jpg", // "You got this" meme
+                "https://i.imgur.com/DdSlBPT.jpg"  // Success quote
+            ]
+        };
+        
+        // DOM elements
+        const messagesContainer = document.getElementById('messages');
+        const moodInput = document.getElementById('mood-input');
+        const sendButton = document.getElementById('send-btn');
+        const moodTags = document.querySelectorAll('.mood-tag');
+        const typingIndicator = document.getElementById('typing-indicator');
+        const memeContainer = document.getElementById('meme-container');
+        const memeImg = document.getElementById('meme-img');
+        
+        // Helper function to add messages
+        function addMessage(text, isUser = false) {
+            const messageDiv = document.createElement('div');
+            messageDiv.classList.add('message');
+            messageDiv.classList.add(isUser ? 'user-message' : 'bot-message');
+            messageDiv.textContent = text;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Helper function to add movie recommendations
+        function addMovieRecommendations(mood) {
+            const movies = movieDatabase[mood];
+            if (!movies) return;
+            
+            const movieListDiv = document.createElement('div');
+            movieListDiv.classList.add('movie-list');
+            
+            movies.forEach(movie => {
+                const movieItem = document.createElement('div');
+                movieItem.classList.add('movie-item');
+                
+                const movieInfo = document.createElement('div');
+                
+                const movieTitle = document.createElement('div');
+                movieTitle.classList.add('movie-title');
+                movieTitle.textContent = movie.title;
+                
+                const movieYear = document.createElement('div');
+                movieYear.classList.add('movie-year');
+                movieYear.textContent = `${movie.year} - ${movie.description}`;
+                
+                movieInfo.appendChild(movieTitle);
+                movieInfo.appendChild(movieYear);
+                
+                movieItem.appendChild(movieInfo);
+                movieListDiv.appendChild(movieItem);
+            });
+            
+            const lastMessage = messagesContainer.lastElementChild;
+            lastMessage.appendChild(document.createElement('br'));
+            lastMessage.appendChild(movieListDiv);
+            
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Function to show typing indicator
+        function showTyping() {
+            typingIndicator.style.display = 'block';
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Function to hide typing indicator
+        function hideTyping() {
+            typingIndicator.style.display = 'none';
+        }
+        
+        // Function to show random meme based on mood
+        function showMeme(mood) {
+            const moodMemes = memes[mood] || memes.bored; // Default to bored memes if mood not found
+            const randomMeme = moodMemes[Math.floor(Math.random() * moodMemes.length)];
+            memeImg.src = randomMeme;
+            memeContainer.classList.add('show');
+            
+            setTimeout(() => {
+                memeContainer.classList.remove('show');
+            }, 3000);
+        }
+        
+        // Function to process user mood
+        function processMood(mood) {
+            addMessage(mood, true);
+            
+            // Show typing indicator
+            showTyping();
+            
+            // Process the mood after a short delay to simulate typing
+            setTimeout(() => {
+                hideTyping();
+                
+                // Normalize mood input
+                const normalizedMood = mood.toLowerCase().trim();
+                let matchedMood = null;
+                
+                // Check if the input contains any of our mood keywords
+                for (const knownMood in sassyResponses) {
+                    if (normalizedMood.includes(knownMood)) {
+                        matchedMood = knownMood;
+                        break;
+                    }
+                }
+                
+                // If we found a matching mood
+                if (matchedMood) {
+                    // Select a random sassy response for this mood
+                    const responses = sassyResponses[matchedMood];
+                    const randomResponse = responses[Math.floor(Math.random() * responses.length)];
+                    
+                    // Add the bot response
+                    addMessage(randomResponse);
+                    
+                    // Add movie recommendations
+                    addMovieRecommendations(matchedMood);
+                    
+                    // Show a random meme based on mood
+                    showMeme(matchedMood);
+                } else {
+                    // If mood not recognized
+                    addMessage("I'm not picking up what you're putting down. Try 'sad', 'happy', 'bored', 'heartbroken', 'anxious', or 'motivated'. Not that hard, bestie.");
+                    
+                    // Show a random bored meme as default
+                    showMeme('bored');
+                }
+            }, 1500);
+        }
+        
+        // Event listener for send button
+        sendButton.addEventListener('click', () => {
+            const mood = moodInput.value.trim();
+            if (mood) {
+                processMood(mood);
+                moodInput.value = '';
+            }
+        });
+        
+        // Event listener for Enter key
+        moodInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                const mood = moodInput.value.trim();
+                if (mood) {
+                    processMood(mood);
+                    moodInput.value = '';
+                }
+            }
+        });
+        
+        // Event listeners for mood tags
+        moodTags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                const mood = tag.dataset.mood;
+                processMood(mood);
+            });
+        });
+    </script>
+</body>
+</html>
